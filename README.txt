@@ -1,4 +1,4 @@
 This is the readme file
 
 #############################
-Project Multirotor is divided into two subprojects: Low and High level 
+project Multirotor is devided in two subproject Low- and High level! 
