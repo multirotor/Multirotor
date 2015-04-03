@@ -1,0 +1,15 @@
+######  git command #########
+
+# First time
+
+>git config --global user.name "Mikael Roos"
+>git config --global user.email "mos@dbwebb.se"
+>git config --list
+
+# Finding out the remote repository adderss 
+>git remote -v
+
+#put the tag as a label and push
+
+>git tag -a "tag name"
+>git push --tags 
