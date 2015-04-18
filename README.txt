@@ -1,20 +1,32 @@
 Windows blink led setup
 
-1. Install STLINK driver
-2. Connect the board
-3. Open cmd in the root folder
-4. Type command "make.exe" 
-5. Run the "ocd.bat"
-6. Go to control panel->programs->Turn Windows features on or off
-7. Select "Telnet client"
-8. Proceed and activate it
-9. Open cmd anyhwere
-10. Type "telnet localhost 4444"
-11. Type "reset halt"
-12. Type "flash write_image erase <path-to-the-root>/build/blinkled.elf"
+----Installation----
+
+In order to make this project work you need to setup following.
+
+ST-link drivers
+Download and install:
+https://developer.mbed.org/teams/ST/wiki/ST-Link-Driver
+
+GCC-ARM
+Download *-win32.zip and unpack in root folder
+
+----Building and compiling
+
+1. Connect the board
+2. Open cmd in the root folder
+3. Type command "make.exe" 
+4. Run the "ocd.bat"
+5. Go to control panel->programs->Turn Windows features on or off
+6. Select "Telnet client"
+7. Proceed and activate it
+8. Open cmd anyhwere
+9. Type "telnet localhost 4444"
+10. Type "reset halt"
+11. Type "flash write_image erase <path-to-the-root>/build/blinkled.elf"
 Example: flash write_image erase C:/Multirotor/blinkRepo/Multirotor/build/blinkled.elf
-13. Type "reset run"
-14. Now the green led should blink! 
+12. Type "reset run"
+13. Now the green led should blink! 
 
 Notes:
 make clean does not function yet. Make sure to delete the build folder manually
