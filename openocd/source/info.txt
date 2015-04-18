@@ -1,0 +1,2 @@
+You can download the source code from Git repository
+git://git.code.sf.net/p/openocd/code
