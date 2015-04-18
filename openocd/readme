@@ -1,0 +1,38 @@
+Download openocd with following git command:
+"git clone https://github.com/ntfreak/openocd"
+
+Change to the downloaded directory:
+cd openocd
+
+Install it:
+./bootstrap
+./configure
+make && sudo make install
+
+Copy file st_nucleo_f411re.cfg to /usr/local/share/openocd/scripts/board:
+sudo cp st_nucleo_f411re.cf /usr/local/share/openocd/scripts/board
+
+Download stlink:
+git clone https://github.com/texane/stlink
+
+Change to the downloaded directory:
+cd stlink
+
+Install it:
+./autogen.sh
+./configure
+make && sudo make install
+
+Copy UDEV rule:
+sudo cp 49-stlinkv2-1.rules /etc/udev/rules.d/
+
+Restart the service:
+sudo service udev restart
+
+Now connect your board and then try to connect with openocd:
+openocd /usr/local/share/openocd/scripts/st_nucleo_f411re.cfg
+
+
+Reference:
+http://josho.org/blog/blog/2014/11/30/nucleo-gcc/wq
+
