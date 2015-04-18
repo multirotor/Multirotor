@@ -1,1 +1,0 @@
-openocd\bin\openocd-0.9.0-dev-150204220259.exe -f openocd\scripts\board\st_nucleo_f4.cfg
