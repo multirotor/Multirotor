@@ -9,7 +9,9 @@ Download and install:
 https://developer.mbed.org/teams/ST/wiki/ST-Link-Driver
 
 GCC-ARM
-Download *-win32.zip and unpack in root folder
+Download gcc-arm-none-eabi-4_9-2015q1-20150306-win32.zip 
+Unpack in root folder (<your-path-to>/multirotor)
+https://launchpad.net/gcc-arm-embedded/+download
 
 ----Building and compiling
 
