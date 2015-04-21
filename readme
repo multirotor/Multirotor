@@ -1,8 +1,11 @@
-Go to ./openocd and follow the setup in the readme file there.
-When done come back here!
 
-Install compiler:
-sudo apt-get gcc-arm-none-eabi
+Install the toolchain
+-----------------------
+
+Follow the Wiki on github: https://github.com/multirotor/Multirotor/wiki
+
+Building the project
+----------------------------
 
 Get the blink led project from our git repo:
 git clone https://github.com/multirotor/Multirotor
