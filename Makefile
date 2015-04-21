@@ -13,7 +13,7 @@ build/main.o: src/main.c
 	$(CC) $(CFLAGS) $(INCLUDE) $(DEFINES) src/main.c -o build/main.o
 
 build/system.o: src/system.c
-	mkdir build 
+	mkdir -p build 
 	$(CC) $(CFLAGS) $(INCLUDE) $(DEFINES) src/system.c -o build/system.o
 
 build/startup_stm32f411xe.o: src/startup_stm32f411xe.s
