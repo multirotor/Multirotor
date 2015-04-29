@@ -43,7 +43,7 @@ int main() {
   // Blink LED.
 //TEST
   while(1) {
-    ms_delay(1000);
+    ms_delay(200);
     LED_TOGGLE();
   }
 }
