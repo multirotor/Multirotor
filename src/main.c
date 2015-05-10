@@ -16,12 +16,16 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 *
 */
-#include <stm32f4xx.h>
+//#include <stm32f4xx.h>
 // Board LED is bit 5 of port A.
 #define LED_PIN 5
 //#define LED_ON() GPIOA->BSRRL |= (1 << 5)
 //#define LED_OFF() GPIOA->BSRRH |= (1 << 5)
 #define LED_TOGGLE() GPIOA->ODR ^= (1 << 5)
+
+
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
 
 //Quick hack, approximately 1ms delay
 void ms_delay(int ms) {
@@ -32,18 +36,35 @@ void ms_delay(int ms) {
    }
 }
 int main() {
+
+	int i = 0;
+
+	periph_clock_enable(RCC_GPIOA);
+
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
+
+	while(1)
+	{	
+		/* Using API function gpio_toggle(): */
+		gpio_toggle(GPIOA, GPIO5);	/* LED on/off */
+		for (i = 0; i < 1000000; i++) {	/* Wait a bit. */
+			__asm__("nop");
+		}
+	}
 	// Enable GPIOA clock.
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+	// RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
 	// Configure GPIOA pin 5 as output.
-	GPIOA->MODER |= (1 << (LED_PIN << 1));
+        //GPIOA->MODER |= (1 << (LED_PIN << 1));
 	// Configure GPIOA pin 5 in max speed.
-	GPIOA->OSPEEDR |= (3 << (LED_PIN << 1));
+	//GPIOA->OSPEEDR |= (3 << (LED_PIN << 1));
 	// Turn on the LED.
 	//LED_ON();
   // Blink LED.
 //TEST
-  while(1) {
-    ms_delay(200);
-    LED_TOGGLE();
-  }
+//  while(1) {
+//    ms_delay(200);
+	//LED_TOGGLE();
+//  }
+
+
 }
