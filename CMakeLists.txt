@@ -22,12 +22,12 @@ set(CMAKE_ASM_FLAGS "-mthumb -mcpu=cortex-m4" CACHE INTERNAL "asm compiler flags
 
 add_definitions(-DSTM32F411xE)
 
-include_directories("${PROJECT_SOURCE_DIR}/../include/")
-include_directories("${PROJECT_SOURCE_DIR}/../CMSIS/Include")
+include_directories("${PROJECT_SOURCE_DIR}/include/")
+include_directories("${PROJECT_SOURCE_DIR}/CMSIS/Include")
 
 
-add_executable(blinkled startup_stm32f411xe.s main.c system.c) 
+add_executable(blinkled src/startup_stm32f411xe.s src/main.c src/system.c) 
 
 
-set(CMAKE_EXE_LINKER_FLAGS "-T ${PROJECT_SOURCE_DIR}/../include/STM32F411RE_FLASH.ld -Wl,--gc-sections ")
+set(CMAKE_EXE_LINKER_FLAGS "-T ${PROJECT_SOURCE_DIR}/include/STM32F411RE_FLASH.ld -Wl,--gc-sections ")
 
