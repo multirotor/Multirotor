@@ -16,8 +16,8 @@ set(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
 
 project (blinkled)
 
-set(CMAKE_C_FLAGS "-mthumb -mcpu=cortex-m4 -Wall -mfloat-abi=hard -mfpu=fpv4-sp-d16" CACHE INTERNAL "c compiler flags")
-set(CMAKE_ASM_FLAGS "-mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16" CACHE INTERNAL "asm compiler flags")
+set(CMAKE_C_FLAGS "-mthumb -mcpu=cortex-m4 -Wall -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g" CACHE INTERNAL "c compiler flags")
+set(CMAKE_ASM_FLAGS "-mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g" CACHE INTERNAL "asm compiler flags")
 
 
 #add_definitions(-DSTM32F411xE)
@@ -27,14 +27,14 @@ add_definitions(-DSTM32F4)
 
 
 
-include_directories("${PROJECT_SOURCE_DIR}/include/")
-include_directories("${PROJECT_SOURCE_DIR}/CMSIS/Include")
+include_directories("${PROJECT_SOURCE_DIR}/../include/")
+include_directories("${PROJECT_SOURCE_DIR}/../CMSIS/Include")
 include_directories("/usr/local/arm-none-eabi/include")
 
 
-add_executable(blinkled src/startup_stm32f411xe.s src/main.c)
+add_executable(blinkled startup_stm32f411xe.s main.c)
 
 target_link_libraries(blinkled /usr/local/arm-none-eabi/lib/libopencm3_stm32f4.a)
 
-set(CMAKE_EXE_LINKER_FLAGS "-T ${PROJECT_SOURCE_DIR}/include/STM32F411RE_FLASH.ld -Wl,--gc-sections -mfloat-abi=hard ")
+set(CMAKE_EXE_LINKER_FLAGS "-T ${PROJECT_SOURCE_DIR}/../include/STM32F411RE_FLASH.ld -Wl,--gc-sections -mfloat-abi=hard ")
 
