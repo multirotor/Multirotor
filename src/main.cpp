@@ -36,18 +36,17 @@
 /* for USB to work, we need a USB clock of 48MHz */
 const clock_scale_t hsi_8mhz_3v3 = {
 	 /* 84MHz */
-		.pllm = 16,
-		.plln = 336,
-		.pllp = 4,
-		.pllq = 7,
-		.hpre = RCC_CFGR_HPRE_DIV_NONE,
-		.ppre1 = RCC_CFGR_PPRE_DIV_4,
-		.ppre2 = RCC_CFGR_PPRE_DIV_2,
-		.power_save = 1,
-		.flash_config = FLASH_ACR_ICE | FLASH_ACR_DCE |
-				FLASH_ACR_LATENCY_3WS,
-		.apb1_frequency = 21000000,
-		.apb2_frequency = 42000000,
+		16, //.pllm
+		336, //.plln
+		4, //.pllp
+		7, //.pllq
+		RCC_CFGR_HPRE_DIV_NONE, //.hpre
+		RCC_CFGR_PPRE_DIV_4, //.ppre1
+		RCC_CFGR_PPRE_DIV_2, //.ppre2
+		1, //.power_save
+		FLASH_ACR_ICE | FLASH_ACR_DCE |	FLASH_ACR_LATENCY_3WS, //.flash_config
+		21000000, //.apb1_frequency
+		42000000, //.apb2_frequency
 };
 
 void rcc_clock_setup_hsi_3v3(const clock_scale_t *clock)
