@@ -1,7 +1,5 @@
 /*
 *
-* Copyright (C) Patryk Jaworski <regalis@regalis.com.pl>
-*
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
@@ -16,6 +14,8 @@
 * along with this program. If not, see <http://www.gnu.org/licenses/>.
 *
 */
+
+
 //#include <stm32f4xx.h>
 // Board LED is bit 5 of port A.
 //#define LED_PIN 5
@@ -25,97 +25,94 @@
 //
 //#define MPU9150_WHO_AM_I           0x75   // R
 
-//#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/i2c.h>
+#include <libopencm3/stm32/flash.h>
+#include <libopencm3/stm32/usart.h>
 
 
-#include "libopencm3/stm32/gpio.h"
+/* for USB to work, we need a USB clock of 48MHz */
+const clock_scale_t hsi_8mhz_3v3 = {
+	 /* 84MHz */
+		16, //.pllm
+		336, //.plln
+		4, //.pllp
+		7, //.pllq
+		RCC_CFGR_HPRE_DIV_NONE, //.hpre
+		RCC_CFGR_PPRE_DIV_4, //.ppre1
+		RCC_CFGR_PPRE_DIV_2, //.ppre2
+		1, //.power_save
+		FLASH_ACR_ICE | FLASH_ACR_DCE |	FLASH_ACR_LATENCY_3WS, //.flash_config
+		21000000, //.apb1_frequency
+		42000000, //.apb2_frequency
+};
 
-//#include <libopencm3/stm32/i2c.h>
-//#include <libopencm3/stm32/flash.h>
-//#include <libopencm3/stm32/usart.h>
+void rcc_clock_setup_hsi_3v3(const clock_scale_t *clock)
+{
+	/* Enable internal high-speed oscillator. */
+	rcc_osc_on(HSI);
+	rcc_wait_for_osc_ready(HSI);
 
-//
-///* for USB to work, we need a USB clock of 48MHz */
-//const clock_scale_t hsi_8mhz_3v3 = {
-//	 /* 84MHz */
-//		16, //.pllm
-//		336, //.plln
-//		4, //.pllp
-//		7, //.pllq
-//		RCC_CFGR_HPRE_DIV_NONE, //.hpre
-//		RCC_CFGR_PPRE_DIV_4, //.ppre1
-//		RCC_CFGR_PPRE_DIV_2, //.ppre2
-//		1, //.power_save
-//		FLASH_ACR_ICE | FLASH_ACR_DCE |	FLASH_ACR_LATENCY_3WS, //.flash_config
-//		21000000, //.apb1_frequency
-//		42000000, //.apb2_frequency
-//};
-//
-//void rcc_clock_setup_hsi_3v3(const clock_scale_t *clock)
-//{
-//	/* Enable internal high-speed oscillator. */
-//	rcc_osc_on(HSI);
-//	rcc_wait_for_osc_ready(HSI);
-//
-//	/* Select HSI as SYSCLK source. */
-//	rcc_set_sysclk_source(RCC_CFGR_SW_HSI);
-//
-////	/* Enable/disable high performance mode */
-////	if (!clock->power_save) {
-////		pwr_set_vos_scale(SCALE1);
-////	} else {
-////		pwr_set_vos_scale(SCALE2);
-////	}
-//
-//	/*
-//	 * Set prescalers for AHB, ADC, ABP1, ABP2.
-//	 * Do this before touching the PLL (TODO: why?).
-//	 */
-//	rcc_set_hpre(clock->hpre);
-//	rcc_set_ppre1(clock->ppre1);
-//	rcc_set_ppre2(clock->ppre2);
-//
-//	rcc_set_main_pll_hsi(clock->pllm, clock->plln,
-//			clock->pllp, clock->pllq);
-//
-//	/* Enable PLL oscillator and wait for it to stabilize. */
-//	rcc_osc_on(PLL);
-//	rcc_wait_for_osc_ready(PLL);
-//
-//	/* Configure flash settings. */
-//	flash_set_ws(clock->flash_config);
-//
-//	/* Select PLL as SYSCLK source. */
-//	rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
-//
-//	/* Wait for PLL clock to be selected. */
-//	rcc_wait_for_sysclk_status(PLL);
-//
-//	/* Set the peripheral clock frequencies used. */
-//	rcc_apb1_frequency = clock->apb1_frequency;
-//	rcc_apb2_frequency = clock->apb2_frequency;
-//
-//	/* Disable internal high-speed oscillator. */
-//	//rcc_osc_off(HSI);
-//}
-//
-//
-//int clock_setup()
-//{
-//	/* Setup clock 84Mh */
+	/* Select HSI as SYSCLK source. */
+	rcc_set_sysclk_source(RCC_CFGR_SW_HSI);
+
+//	/* Enable/disable high performance mode */
+//	if (!clock->power_save) {
+//		pwr_set_vos_scale(SCALE1);
+//	} else {
+//		pwr_set_vos_scale(SCALE2);
+//	}
+
+	/*
+	 * Set prescalers for AHB, ADC, ABP1, ABP2.
+	 * Do this before touching the PLL (TODO: why?).
+	 */
+	rcc_set_hpre(clock->hpre);
+	rcc_set_ppre1(clock->ppre1);
+	rcc_set_ppre2(clock->ppre2);
+
+	rcc_set_main_pll_hsi(clock->pllm, clock->plln,
+			clock->pllp, clock->pllq);
+
+	/* Enable PLL oscillator and wait for it to stabilize. */
+	rcc_osc_on(PLL);
+	rcc_wait_for_osc_ready(PLL);
+
+	/* Configure flash settings. */
+	flash_set_ws(clock->flash_config);
+
+	/* Select PLL as SYSCLK source. */
+	rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
+
+	/* Wait for PLL clock to be selected. */
+	rcc_wait_for_sysclk_status(PLL);
+
+	/* Set the peripheral clock frequencies used. */
+	rcc_apb1_frequency = clock->apb1_frequency;
+	rcc_apb2_frequency = clock->apb2_frequency;
+
+	/* Disable internal high-speed oscillator. */
+	//rcc_osc_off(HSI);
+}
+
+
+int clock_setup()
+{
+	/* Setup clock 84Mh */
 //	rcc_clock_setup_hsi_3v3(&hsi_8mhz_3v3);
-//
-//	/* setup clock for LEDs and USART */
-//	rcc_periph_clock_enable(RCC_GPIOA);
-//
-//	/* Enable clocks for USART2. */
-//	rcc_periph_clock_enable(RCC_USART2);
-//
-//	/* must be done here?! */
-//	rcc_periph_clock_enable(RCC_I2C1);
-//	rcc_periph_clock_enable(RCC_GPIOB);
-//
-//}
+
+	/* setup clock for LEDs and USART */
+	rcc_periph_clock_enable(RCC_GPIOA);
+
+	/* Enable clocks for USART2. */
+	rcc_periph_clock_enable(RCC_USART2);
+
+	/* must be done here?! */
+	rcc_periph_clock_enable(RCC_I2C1);
+	rcc_periph_clock_enable(RCC_GPIOB);
+
+}
 //
 //int i2c_setup()
 //{
@@ -140,22 +137,22 @@
 //
 //
 //}
-//
-//static void usart_setup(void)
-//{
-//	/* Setup USART2 parameters. */
-//	usart_set_baudrate(USART2, 115200);
-//	usart_set_databits(USART2, 8);
-//	usart_set_stopbits(USART2, USART_STOPBITS_1);
-//	usart_set_mode(USART2, USART_MODE_TX);
-//	usart_set_parity(USART2, USART_PARITY_NONE);
-//	usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
-//
-//	/* Finally enable the USART. */
-//	usart_enable(USART2);
-//}
-//
-//
+
+static void usart_setup(void)
+{
+	/* Setup USART2 parameters. */
+	usart_set_baudrate(USART2, 115200);
+	usart_set_databits(USART2, 8);
+	usart_set_stopbits(USART2, USART_STOPBITS_1);
+	usart_set_mode(USART2, USART_MODE_TX);
+	usart_set_parity(USART2, USART_PARITY_NONE);
+	usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
+
+	/* Finally enable the USART. */
+	usart_enable(USART2);
+}
+
+
 static void gpio_setup(void)
 {
 	/* gpio setup for blink LED */
@@ -179,8 +176,8 @@ int main() {
 	int c = 0;
 
 	uint8_t temperature;
-//
-//	clock_setup();
+
+	clock_setup();
 //	usart_setup();
 //	i2c_setup();
 	gpio_setup();
