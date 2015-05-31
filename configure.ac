@@ -9,20 +9,17 @@ AC_CONFIG_HEADERS([config.h])
 
 MACHINE="-DSTM32F4"
 
-CXXFLAGS="$CXXFLAGS -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g $MACHINE -nostdlib -fno-exceptions -fno-rtti"
+CXXFLAGS="$CXXFLAGS -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g -I/usr/local/arm-none-eabi/include $MACHINE -nostdlib -fno-exceptions -fno-rtti"
 
-CFLAGS="$CFLAGS -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g $MACHINE -nostdlib"
+CFLAGS="$CFLAGS -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g -I/usr/local/arm-none-eabi/include $MACHINE -nostdlib"
 
-CXXFLAGS = "$CXXFLAGS -I/usr/local/arm-none-eabi/include"
-CFLAGS="$CFLAGS -I/usr/local/arm-none-eabi/include"
-LDFLAGS="-L/usr/local/arm-none-eabi/lib"
+LDFLAGS="$LDFLAGS -L/usr/local/arm-none-eabi/lib -mfloat-abi=hard -mfpu=fpv4-sp-d16"
 
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
 AM_PROG_AS
 
-AC_LANG([C++])
 
 # Checks for libraries.
 AC_SEARCH_LIBS([rcc_periph_clock_enable], [opencm3_stm32f4], [], [
