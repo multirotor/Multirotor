@@ -1,0 +1,43 @@
+
+Install the toolchain
+-----------------------
+
+Follow the Wiki on github: https://github.com/multirotor/Multirotor/wiki
+
+Building the project
+----------------------------
+
+Get the blink led project from our git repo:
+git clone https://github.com/multirotor/Multirotor
+
+To find which remote branches are available:
+git branch -r
+
+Checkout the blinkLed branch:
+git fetch
+git checkout blinkUbuntu
+
+Build the project:
+make
+(If the folder build exsist you need to run make clean first, this needs to be solved in the future)
+
+Start openocd:
+Check readme for openocd
+
+Connect to openocd:
+telnet localhost 4444
+
+Reset and halt the board:
+reset halt
+
+Flash the elf file:
+flash write_image erase <path-to-the-file>/blinkled.elf
+
+Reset and run:
+reset run
+
+Hope it works for you!
+
+
+
+
