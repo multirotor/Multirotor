@@ -9,9 +9,9 @@ AC_CONFIG_HEADERS([config.h])
 
 MACHINE="-DSTM32F4"
 
-CXXFLAGS="$CXXFLAGS -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g -I/usr/local/arm-none-eabi/include $MACHINE -nostdlib -fno-exceptions -fno-rtti"
+CXXFLAGS="$CXXFLAGS -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g -I/usr/local/arm-none-eabi/include -I../include $MACHINE -nostdlib -fno-exceptions -fno-rtti"
 
-CFLAGS="$CFLAGS -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g -I/usr/local/arm-none-eabi/include $MACHINE -nostdlib"
+CFLAGS="$CFLAGS -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g -I/usr/local/arm-none-eabi/include -I../include $MACHINE -nostdlib"
 
 LDFLAGS="$LDFLAGS -L/usr/local/arm-none-eabi/lib -mfloat-abi=hard -mfpu=fpv4-sp-d16"
 

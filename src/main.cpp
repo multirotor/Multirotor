@@ -31,6 +31,8 @@
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/stm32/usart.h>
 
+#include "clock.h"
+#include "uart_handler.h"
 
 /* for USB to work, we need a USB clock of 48MHz */
 const clock_scale_t hsi_8mhz_3v3 = {
@@ -39,80 +41,15 @@ const clock_scale_t hsi_8mhz_3v3 = {
 		336, //.plln
 		4, //.pllp
 		7, //.pllq
+		FLASH_ACR_ICE | FLASH_ACR_DCE |	FLASH_ACR_LATENCY_3WS, //.flash_config
 		RCC_CFGR_HPRE_DIV_NONE, //.hpre
 		RCC_CFGR_PPRE_DIV_4, //.ppre1
 		RCC_CFGR_PPRE_DIV_2, //.ppre2
 		1, //.power_save
-		FLASH_ACR_ICE | FLASH_ACR_DCE |	FLASH_ACR_LATENCY_3WS, //.flash_config
-		21000000, //.apb1_frequency
-		42000000, //.apb2_frequency
+		(uint32_t)21000000, //.apb1_frequency
+		(uint32_t)42000000, //.apb2_frequency
 };
 
-void rcc_clock_setup_hsi_3v3(const clock_scale_t *clock)
-{
-	/* Enable internal high-speed oscillator. */
-	rcc_osc_on(HSI);
-	rcc_wait_for_osc_ready(HSI);
-
-	/* Select HSI as SYSCLK source. */
-	rcc_set_sysclk_source(RCC_CFGR_SW_HSI);
-
-//	/* Enable/disable high performance mode */
-//	if (!clock->power_save) {
-//		pwr_set_vos_scale(SCALE1);
-//	} else {
-//		pwr_set_vos_scale(SCALE2);
-//	}
-
-	/*
-	 * Set prescalers for AHB, ADC, ABP1, ABP2.
-	 * Do this before touching the PLL (TODO: why?).
-	 */
-	rcc_set_hpre(clock->hpre);
-	rcc_set_ppre1(clock->ppre1);
-	rcc_set_ppre2(clock->ppre2);
-
-	rcc_set_main_pll_hsi(clock->pllm, clock->plln,
-			clock->pllp, clock->pllq);
-
-	/* Enable PLL oscillator and wait for it to stabilize. */
-	rcc_osc_on(PLL);
-	rcc_wait_for_osc_ready(PLL);
-
-	/* Configure flash settings. */
-	flash_set_ws(clock->flash_config);
-
-	/* Select PLL as SYSCLK source. */
-	rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
-
-	/* Wait for PLL clock to be selected. */
-	rcc_wait_for_sysclk_status(PLL);
-
-	/* Set the peripheral clock frequencies used. */
-	rcc_apb1_frequency = clock->apb1_frequency;
-	rcc_apb2_frequency = clock->apb2_frequency;
-
-	/* Disable internal high-speed oscillator. */
-	//rcc_osc_off(HSI);
-}
-
-
-int clock_setup()
-{
-	/* Setup clock 84Mh */
-//	rcc_clock_setup_hsi_3v3(&hsi_8mhz_3v3);
-
-	/* setup clock for LEDs and USART */
-	rcc_periph_clock_enable(RCC_GPIOA);
-
-	/* Enable clocks for USART2. */
-	rcc_periph_clock_enable(RCC_USART2);
-
-	/* must be done here?! */
-	rcc_periph_clock_enable(RCC_I2C1);
-	rcc_periph_clock_enable(RCC_GPIOB);
-
-}
 //
 //int i2c_setup()
 //{
@@ -138,19 +75,7 @@ int clock_setup()
 //
 //}
 
-static void usart_setup(void)
-{
-	/* Setup USART2 parameters. */
-	usart_set_baudrate(USART2, 115200);
-	usart_set_databits(USART2, 8);
-	usart_set_stopbits(USART2, USART_STOPBITS_1);
-	usart_set_mode(USART2, USART_MODE_TX);
-	usart_set_parity(USART2, USART_PARITY_NONE);
-	usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
 
-	/* Finally enable the USART. */
-	usart_enable(USART2);
-}
 
 
 static void gpio_setup(void)
@@ -159,14 +84,17 @@ static void gpio_setup(void)
 	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
 
 	/* Setup GPIO pins for USART2 transmit. */
-	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2);
+	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
 
 	/* Setup USART2 TX pin as alternate function. */
-	gpio_set_af(GPIOA, GPIO_AF7, GPIO2);
+	gpio_set_af(GPIOA, GPIO_AF7, GPIO2 | GPIO3);
 
 
 
 }
+
+Clock_Manager Clk_Mgr;
+Uart_Handler Uart_Mgr;
 
 
 int main() {
@@ -175,10 +103,11 @@ int main() {
 	int j = 0;
 	int c = 0;
 
-	uint8_t temperature;
+	uint16_t temperature = 0;
 
-	clock_setup();
-//	usart_setup();
+	Clk_Mgr.setup(&hsi_8mhz_3v3);
+	Uart_Mgr.setup();
+
 //	i2c_setup();
 	gpio_setup();
 
@@ -245,10 +174,12 @@ int main() {
 ////		}
 //
 //		i2c_peripheral_disable(I2C1);
-//
-//		usart_send_blocking(USART2, temperature);
-//		usart_send_blocking(USART2, '\r');
-//		usart_send_blocking(USART2, '\n');
+
+		temperature = Uart_Mgr.get_rx_data();
+
+		usart_send_blocking(USART2, temperature);
+		usart_send_blocking(USART2, '\r');
+		usart_send_blocking(USART2, '\n');
 
 		for (i = 0; i < 4000000; i++) {	/* Wait a bit. */
 			__asm__("nop");
