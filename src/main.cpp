@@ -181,9 +181,7 @@ int main() {
 		usart_send_blocking(USART2, '\r');
 		usart_send_blocking(USART2, '\n');
 
-		for (i = 0; i < 4000000; i++) {	/* Wait a bit. */
-			__asm__("nop");
-		}
+
 	}
 
 
