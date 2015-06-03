@@ -31,8 +31,10 @@
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/stm32/usart.h>
 
+
 #include "clock.h"
 #include "uart_handler.h"
+#include "i2c_wrapper.h"
 
 /* for USB to work, we need a USB clock of 48MHz */
 const clock_scale_t hsi_8mhz_3v3 = {
@@ -78,7 +80,7 @@ const clock_scale_t hsi_8mhz_3v3 = {
 
 
 
-static void gpio_setup(void)
+void gpio_setup(void)
 {
 	/* gpio setup for blink LED */
 	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
@@ -95,6 +97,7 @@ static void gpio_setup(void)
 
 Clock_Manager Clk_Mgr;
 Uart_Handler Uart_Mgr;
+i2c_wrapper I2C_Mgr(I2C1);
 
 
 int main() {
@@ -103,19 +106,34 @@ int main() {
 	int j = 0;
 	int c = 0;
 
-	uint16_t temperature = 0;
+	uint8_t temperature = 0;
+	uint16_t uart_rx_byte = 0;
+	uint16_t output = 0;
+
+	char string[20];
 
 	Clk_Mgr.setup(&hsi_8mhz_3v3);
 	Uart_Mgr.setup();
+	I2C_Mgr.setup();
 
-//	i2c_setup();
+
 	gpio_setup();
 
 
 	while(1)
 	{	
+
+		uart_rx_byte = Uart_Mgr.get_rx_data();
+
 		/* Using API function gpio_toggle(): */
 		gpio_toggle(GPIOA, GPIO5);	/* LED on/off */
+
+		I2C_Mgr.enable();
+
+		I2C_Mgr.readBytes(0x68,  0x6B, &temperature);
+
+//		i2c_peripheral_disable(I2C1);
+
 
 //		usart_send_blocking(USART2, c + '0'); /* USART2: Send byte. */
 //		c = (c == 9) ? 0 : c + 1;	/* Increment c. */
@@ -173,11 +191,19 @@ int main() {
 //
 ////		}
 //
-//		i2c_peripheral_disable(I2C1);
 
-		temperature = Uart_Mgr.get_rx_data();
 
-		usart_send_blocking(USART2, temperature);
+
+
+        /* pack into buf string */
+//		string[0] = temperature >> 24;
+//		string[1] = temperature >> 16;
+//		string[0] = temperature >> 8;
+//		string[1] = temperature;
+//
+//		output = (string[0] <<  8) | (string[1] << 0);
+
+		usart_send_blocking(USART2, 'H');
 		usart_send_blocking(USART2, '\r');
 		usart_send_blocking(USART2, '\n');
 
