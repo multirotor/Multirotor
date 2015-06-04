@@ -34,7 +34,7 @@
 
 #include "clock.h"
 #include "uart_handler.h"
-#include "i2c_wrapper.h"
+#include "I2CManager.h"
 
 /* for USB to work, we need a USB clock of 48MHz */
 const clock_scale_t hsi_8mhz_3v3 = {
@@ -97,7 +97,7 @@ void gpio_setup(void)
 
 Clock_Manager Clk_Mgr;
 Uart_Handler Uart_Mgr;
-i2c_wrapper I2C_Mgr(I2C1);
+I2CManager I2C_Mgr(I2C1);
 
 
 int main() {
@@ -110,102 +110,37 @@ int main() {
 	uint16_t uart_rx_byte = 0;
 	uint16_t output = 0;
 
+	uint16_t result = 0;
+
 	char string[20];
 
 	Clk_Mgr.setup(&hsi_8mhz_3v3);
 	Uart_Mgr.setup();
 	I2C_Mgr.setup();
-
-
 	gpio_setup();
 
 
 	while(1)
 	{	
 
-		uart_rx_byte = Uart_Mgr.get_rx_data();
+//		uart_rx_byte = Uart_Mgr.get_rx_data();
 
 		/* Using API function gpio_toggle(): */
 		gpio_toggle(GPIOA, GPIO5);	/* LED on/off */
 
-		I2C_Mgr.enable();
-
-		I2C_Mgr.readBytes(0x68,  0x6B, &temperature);
-
-//		i2c_peripheral_disable(I2C1);
-
-
-//		usart_send_blocking(USART2, c + '0'); /* USART2: Send byte. */
-//		c = (c == 9) ? 0 : c + 1;	/* Increment c. */
-//		if ((j++ % 80) == 0) {		/* Newline after line full. */
-//			usart_send_blocking(USART2, '\r');
-//			usart_send_blocking(USART2, '\n');
-//		}
-//
-//		i2c_peripheral_enable(I2C1);
-//
-//		i2c_send_start(I2C1);
-//
-//
-//		/* Waiting for START is send and switched to master mode. */
-//		while (!((I2C_SR1(I2C1) & I2C_SR1_SB)
-//			& (I2C_SR2(I2C1) & (I2C_SR2_MSL | I2C_SR2_BUSY))));
-//
-//		i2c_send_7bit_address(I2C1, 0x68, I2C_WRITE);
-//
-//
-//		/* Waiting for address is transferred. */
-//		while (!(I2C_SR1(I2C1) & I2C_SR1_ADDR));
-//
-//		I2C_SR2(I2C1);
-//
-//
-//		i2c_send_data(I2C1, 0x6B); /* temperature register */
-//
-//		while (!(I2C_SR1(I2C1) & (I2C_SR1_BTF | I2C_SR1_TxE)));
-//
-//		/* Send START condition. */
-//		i2c_send_start(I2C1);
-//
-//		/* Waiting for START is send and switched to master mode. */
-//		while (!((I2C_SR1(I2C1) & I2C_SR1_SB)
-//			& (I2C_SR2(I2C1) & (I2C_SR2_MSL | I2C_SR2_BUSY))));
-//
-//		/* Say to what address we want to talk to. */
-//		i2c_send_7bit_address(I2C1, 0x68, I2C_READ);
-//
-//		/* Waiting for address is transferred. */
-//		while (!(I2C_SR1(I2C1) & I2C_SR1_ADDR));
-//
-//		I2C_SR2(I2C1);
-//
-//		/* Cleaning I2C_SR1_ACK. */
-//		I2C_CR1(I2C1) &= ~I2C_CR1_ACK;
-//
-////		i2c_get_data()
-//
-//		/* Now the slave should begin to send us the first byte. Await BTF. */
-////		while (!(I2C_SR1(I2C1) & I2C_SR1_BTF))
-////		{
-//		temperature = (uint8_t)(I2C_DR(I2C1) << 8); /* MSB */
-//
-////		}
-//
-
-
-
+		result = I2C_Mgr.readBytes(0x68,  0x6B, &temperature);
 
         /* pack into buf string */
 //		string[0] = temperature >> 24;
 //		string[1] = temperature >> 16;
 //		string[0] = temperature >> 8;
-//		string[1] = temperature;
+		string[1] = temperature;
 //
 //		output = (string[0] <<  8) | (string[1] << 0);
 
-		usart_send_blocking(USART2, 'H');
-		usart_send_blocking(USART2, '\r');
-		usart_send_blocking(USART2, '\n');
+//		usart_send_blocking(USART2, 'H');
+//		usart_send_blocking(USART2, '\r');
+//		usart_send_blocking(USART2, '\n');
 
 
 	}

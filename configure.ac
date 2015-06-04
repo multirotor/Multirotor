@@ -29,7 +29,7 @@ AC_SEARCH_LIBS([rcc_periph_clock_enable], [opencm3_stm32f4], [], [
 
 
 # Checks for header files.
-AC_CHECK_HEADERS([libopencm3/stm32/rcc.h i2c_wrapper.h])
+AC_CHECK_HEADERS([libopencm3/stm32/rcc.h I2CManager.h])
 
 
 AC_CONFIG_FILES([
