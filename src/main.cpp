@@ -16,14 +16,7 @@
 */
 
 
-//#include <stm32f4xx.h>
-// Board LED is bit 5 of port A.
-//#define LED_PIN 5
-//#define LED_ON() GPIOA->BSRRL |= (1 << 5)
-//#define LED_OFF() GPIOA->BSRRH |= (1 << 5)
-//#define LED_TOGGLE() GPIOA->ODR ^= (1 << 5)
-//
-//#define MPU9150_WHO_AM_I           0x75   // R
+#define MPU9150_WHO_AM_I           0x75   // R
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
@@ -52,33 +45,6 @@ const clock_scale_t hsi_8mhz_3v3 = {
 		(uint32_t)42000000, //.apb2_frequency
 };
 
-//
-//int i2c_setup()
-//{
-//
-////	i2c_peripheral_disable(I2C1);
-//
-//	gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO8 | GPIO9);
-//	gpio_set_af(GPIOB, GPIO_AF4, GPIO8 | GPIO9);
-//	gpio_set_output_options(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_2MHZ, GPIO8 | GPIO9);
-//
-//	/* i2c peripheral runs on APB1, and we set the APB1 frequency to 21MHz in clock_setup() */
-//	i2c_set_clock_frequency(I2C1, I2C_CR2_FREQ_21MHZ);
-//
-//	i2c_set_fast_mode(I2C1);
-//
-//	/* we would like to have 400kHz, that is 21Mhz/400kHz=52.5. Closest: 53, gives 396226Hz~400kHz i2c clock */
-//	i2c_set_ccr(I2C1, 30);
-//
-//
-//	i2c_peripheral_enable(I2C1);
-//
-//
-//
-//}
-
-
-
 
 void gpio_setup(void)
 {
@@ -106,13 +72,11 @@ int main() {
 	int j = 0;
 	int c = 0;
 
-	uint8_t temperature = 0;
+	uint8_t byte_read = 0;
 	uint16_t uart_rx_byte = 0;
 	uint16_t output = 0;
 
 	uint16_t result = 0;
-
-	char string[20];
 
 	Clk_Mgr.setup(&hsi_8mhz_3v3);
 	Uart_Mgr.setup();
@@ -123,25 +87,18 @@ int main() {
 	while(1)
 	{	
 
-//		uart_rx_byte = Uart_Mgr.get_rx_data();
+		/* get a character */
+		uart_rx_byte = Uart_Mgr.get_rx_data();
 
-		/* Using API function gpio_toggle(): */
+		/* toggle led */
 		gpio_toggle(GPIOA, GPIO5);	/* LED on/off */
 
-		result = I2C_Mgr.readBytes(0x68,  0x6B, &temperature);
+		/* read WHO AM I register
+		 * should return 0x68
+		 */
+		result = I2C_Mgr.readBytes(0x68, MPU9150_WHO_AM_I, &byte_read);
 
-        /* pack into buf string */
-//		string[0] = temperature >> 24;
-//		string[1] = temperature >> 16;
-//		string[0] = temperature >> 8;
-		string[1] = temperature;
-//
-//		output = (string[0] <<  8) | (string[1] << 0);
-
-//		usart_send_blocking(USART2, 'H');
-//		usart_send_blocking(USART2, '\r');
-//		usart_send_blocking(USART2, '\n');
-
+		usart_send_blocking(USART2, byte_read);
 
 	}
 
