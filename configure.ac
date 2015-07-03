@@ -9,11 +9,11 @@ AC_CONFIG_HEADERS([config.h])
 
 MACHINE="-DSTM32F4"
 
-CXXFLAGS="$CXXFLAGS -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g -I/usr/local/arm-none-eabi/include $MACHINE -nostdlib -fno-exceptions -fno-rtti"
+CXXFLAGS="$CXXFLAGS -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g -I/usr/local/arm-none-eabi/include -I../include -I/usr/local/include $MACHINE -nostdlib -fno-exceptions -fno-rtti"
 
-CFLAGS="$CFLAGS -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g -I/usr/local/arm-none-eabi/include $MACHINE -nostdlib"
+CFLAGS="$CFLAGS -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -g -I/usr/local/arm-none-eabi/include -I../include -I/usr/local/include $MACHINE -nostdlib"
 
-LDFLAGS="$LDFLAGS -L/usr/local/arm-none-eabi/lib -mfloat-abi=hard -mfpu=fpv4-sp-d16"
+LDFLAGS="$LDFLAGS -L/usr/local/arm-none-eabi/lib -L/usr/local/lib -mfloat-abi=hard -mfpu=fpv4-sp-d16"
 
 # Checks for programs.
 AC_PROG_CXX
@@ -26,8 +26,10 @@ AC_SEARCH_LIBS([rcc_periph_clock_enable], [opencm3_stm32f4], [], [
 		  AC_MSG_ERROR([unable to find the opencm lib])
 		  ])
 
+
+
 # Checks for header files.
-AC_CHECK_HEADERS([libopencm3/stm32/rcc.h])
+AC_CHECK_HEADERS([libopencm3/stm32/rcc.h I2CManager.h])
 
 
 AC_CONFIG_FILES([
