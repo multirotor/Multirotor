@@ -17,3 +17,6 @@ aclocal.m4
 config.h.in*
 
 Makefile.in
+
+.tags
+

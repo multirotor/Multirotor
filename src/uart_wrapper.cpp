@@ -1,15 +1,21 @@
 /*
- * uart_handler.cpp
+ * UARTWrapper.cpp
  *
  *  Created on: Jun 1, 2015
  *      Author: martin
  */
 
-#include "uart_handler.h"
+#include "uart_wrapper.h"
 
 #include <libopencm3/stm32/usart.h>
 
-void Uart_Handler::setup(void)
+
+uint16_t rx_word;
+uint16_t tx_word;
+
+
+
+void UARTWrapper::setup(void)
 {
 	/* Setup USART2 parameters. */
 	usart_set_baudrate(USART2, 115200);
@@ -23,19 +29,27 @@ void Uart_Handler::setup(void)
 	usart_enable(USART2);
 }
 
-void Uart_Handler::receive(void)
+void UARTWrapper::receive_word(void)
 {
-
-	rx_data = usart_recv_blocking(USART2);
-
-
+	rx_word = usart_recv_blocking(USART2);
 }
 
-uint16_t Uart_Handler::get_rx_data(void)
+void UARTWrapper::send_word(void)
 {
+	usart_send_blocking(USART2, tx_word);
+}
 
-	receive();
 
-	return rx_data;
+void UARTWrapper::get_rx_data(uint16_t* rx_word_buffer)
+{
+	receive_word();
 
+	*rx_word_buffer = rx_word;
+}
+
+void UARTWrapper::send_tx_word(uint16_t* word_to_tx)
+{
+	tx_word = *word_to_tx;
+
+	send_word();
 }

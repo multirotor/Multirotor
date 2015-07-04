@@ -10,21 +10,21 @@
 
 #include <stdint.h>
 
-class Uart_Handler
+class UARTWrapper
 {
 
-	uint16_t rx_data;
 
 public:
 
 	void setup();
-	uint16_t get_rx_data();
-	void receive();
+	void get_rx_data(uint16_t* rx_word_buffer);
+	void send_tx_word(uint16_t* word_to_tx);
+
 
 private:
 
-
-
+	void receive_word(void);
+	void send_word(void);
 
 
 };

@@ -26,23 +26,28 @@
 
 
 #include "clock.h"
-#include "uart_handler.h"
-#include "I2CManager.h"
+#include "uart_wrapper.h"
+#include "I2CWrapper.h"
 
-/* for USB to work, we need a USB clock of 48MHz */
+
+Clock_Manager Clk_Mgr;
+UARTWrapper Uart_Mgr;
+I2CWrapper i2c_mpu9150(I2C1);
+
+
+/* for USB a USB clock of 48MHz is needed */
 const clock_scale_t hsi_8mhz_3v3 = {
-	 /* 84MHz */
-		16, //.pllm
-		336, //.plln
-		4, //.pllp
-		7, //.pllq
-		FLASH_ACR_ICE | FLASH_ACR_DCE |	FLASH_ACR_LATENCY_3WS, //.flash_config
-		RCC_CFGR_HPRE_DIV_NONE, //.hpre
-		RCC_CFGR_PPRE_DIV_4, //.ppre1
-		RCC_CFGR_PPRE_DIV_2, //.ppre2
-		1, //.power_save
-		(uint32_t)21000000, //.apb1_frequency
-		(uint32_t)42000000, //.apb2_frequency
+		16, 													//.pllm
+		336, 													//.plln
+		4, 														//.pllp
+		7, 														//.pllq
+		FLASH_ACR_ICE | FLASH_ACR_DCE |	FLASH_ACR_LATENCY_3WS, 	//.flash_config
+		RCC_CFGR_HPRE_DIV_NONE, 								//.hpre
+		RCC_CFGR_PPRE_DIV_4, 									//.ppre1
+		RCC_CFGR_PPRE_DIV_2, 									//.ppre2
+		1, 														//.power_save
+		(uint32_t)21000000, 									//.apb1_frequency
+		(uint32_t)42000000, 									//.apb2_frequency
 };
 
 
@@ -57,38 +62,30 @@ void gpio_setup(void)
 	/* Setup USART2 TX pin as alternate function. */
 	gpio_set_af(GPIOA, GPIO_AF7, GPIO2 | GPIO3);
 
-
-
 }
 
-Clock_Manager Clk_Mgr;
-Uart_Handler Uart_Mgr;
-I2CManager I2C_Mgr(I2C1);
 
 
 int main() {
 
-	int i = 0;
-	int j = 0;
-	int c = 0;
-
 	uint8_t byte_read = 0;
-	uint16_t uart_rx_byte = 0;
-	uint16_t output = 0;
-
-	uint16_t result = 0;
 
 	Clk_Mgr.setup(&hsi_8mhz_3v3);
 	Uart_Mgr.setup();
-	I2C_Mgr.setup();
+	i2c_mpu9150.setup();
 	gpio_setup();
 
 
 	while(1)
 	{	
+		uint16_t result = 0;
 
-		/* get a character */
-		uart_rx_byte = Uart_Mgr.get_rx_data();
+		uint16_t uart_rx_byte = 0;
+		
+		/* wait for user to put in a character and write it back to uart */
+		Uart_Mgr.get_rx_data(&uart_rx_byte);
+		Uart_Mgr.send_tx_word(&uart_rx_byte);
+
 
 		/* toggle led */
 		gpio_toggle(GPIOA, GPIO5);	/* LED on/off */
@@ -96,7 +93,7 @@ int main() {
 		/* read WHO AM I register
 		 * should return 0x68
 		 */
-		result = I2C_Mgr.readBytes(0x68, MPU9150_WHO_AM_I, &byte_read);
+		result = i2c_mpu9150.readBytes(0x68, MPU9150_WHO_AM_I, &byte_read);
 
 		usart_send_blocking(USART2, byte_read);
 
