@@ -79,11 +79,11 @@ int main()
 	I2C_Mgr.setup();
 	gpio_setup();
 
-	PwmOut MotorA(TIM3, TIM_OC1, GPIOA, GPIO6, 50, 2000);
-	PwmOut MotorB(TIM3, TIM_OC2, GPIOA, GPIO7, 50, 2000);
-	PwmOut MotorC(TIM3, TIM_OC3, GPIOB, GPIO0, 50, 2000);
-	PwmOut MotorD(TIM4, TIM_OC1, GPIOB, GPIO6, 50, 2000);
-	PwmOut MotorE(TIM5, TIM_OC1, GPIOA, GPIO0, 50, 2000);
+	PwmOut MotorA(TIM3, TIM_OC1, GPIOA, GPIO6, 488, 1060);
+	PwmOut MotorB(TIM3, TIM_OC2, GPIOA, GPIO7, 488, 1060);
+	PwmOut MotorC(TIM3, TIM_OC3, GPIOB, GPIO0, 488, 1060);
+	PwmOut MotorD(TIM4, TIM_OC1, GPIOB, GPIO6, 488, 1060);
+	PwmOut MotorE(TIM5, TIM_OC1, GPIOA, GPIO0, 488, 1060);
 
 	MotorA.set(1500);
 
