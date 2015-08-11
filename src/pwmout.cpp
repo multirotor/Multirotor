@@ -38,7 +38,7 @@ PwmOut::PwmOut(uint32_t timer, enum tim_oc_id channel, uint32_t port, uint16_t g
 
 	timer_continuous_mode(timer);
 	timer_set_period(timer, (1000000 / frequency));
-	timer_set_prescaler(timer, (rcc_apb2_frequency/1000000));
+	timer_set_prescaler(timer, (rcc_apb2_frequency/1000000)-1);
 
 	timer_set_clock_division(timer, 0);
 	timer_set_master_mode(timer, TIM_CR2_MMS_UPDATE);
