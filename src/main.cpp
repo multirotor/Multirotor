@@ -23,11 +23,13 @@
 #include <libopencm3/stm32/i2c.h>
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/stm32/usart.h>
+#include <libopencm3/stm32/timer.h>
 
 
 #include "clock.h"
 #include "uart_handler.h"
 #include "I2CManager.h"
+#include "pwmout.h"
 
 /* for USB to work, we need a USB clock of 48MHz */
 const clock_scale_t hsi_8mhz_3v3 = {
@@ -56,22 +58,16 @@ void gpio_setup(void)
 
 	/* Setup USART2 TX pin as alternate function. */
 	gpio_set_af(GPIOA, GPIO_AF7, GPIO2 | GPIO3);
-
-
-
 }
+
 
 Clock_Manager Clk_Mgr;
 Uart_Handler Uart_Mgr;
 I2CManager I2C_Mgr(I2C1);
 
 
-int main() {
-
-	int i = 0;
-	int j = 0;
-	int c = 0;
-
+int main()
+{
 	uint8_t byte_read = 0;
 	uint16_t uart_rx_byte = 0;
 	uint16_t output = 0;
@@ -83,10 +79,22 @@ int main() {
 	I2C_Mgr.setup();
 	gpio_setup();
 
+	PwmOut MotorA(TIM3, TIM_OC1, GPIOA, GPIO6, 50, 2000);
+	PwmOut MotorB(TIM3, TIM_OC2, GPIOA, GPIO7, 50, 2000);
+	PwmOut MotorC(TIM3, TIM_OC3, GPIOB, GPIO0, 50, 2000);
+	PwmOut MotorD(TIM4, TIM_OC1, GPIOB, GPIO6, 50, 2000);
+	PwmOut MotorE(TIM5, TIM_OC1, GPIOA, GPIO0, 50, 2000);
+
+	MotorA.set(1500);
+
+	uint16_t val = MotorA.get();
+
+	MotorA.set(uint16_t(val-500));
+
+	MotorA.set(1500);
 
 	while(1)
-	{	
-
+	{
 		/* get a character */
 		uart_rx_byte = Uart_Mgr.get_rx_data();
 
@@ -99,7 +107,6 @@ int main() {
 		result = I2C_Mgr.readBytes(0x68, MPU9150_WHO_AM_I, &byte_read);
 
 		usart_send_blocking(USART2, byte_read);
-
 	}
 
 
